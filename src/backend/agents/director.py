@@ -1,5 +1,7 @@
 import logging
+import asyncio
 from typing import Dict, List, Any, Set
+from src.backend.services.telegram_bot import telegram_bot
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -51,7 +53,23 @@ class TradingDeskLead:
 
         return hypotheses
 
-    def route(self, state: Dict[str, Any]) -> Set[str]:
+    def generate_morning_briefing(self) -> str:
+        """
+        Synthesizes the current overall market state into a concise executive briefing.
+        """
+        # In a real system, this would query the latest MarketIntel and Risk analysis
+        # for all tracked symbols.
+        briefing = (
+            "☀️ *Morning Executive Briefing*\n"
+            "----------------------------------\n"
+            "📅 Date: 2026-08-19\n\n"
+            "📈 *Market Sentiment:* Neutral-Bullish\n"
+            "⚠️ *Key Risk:* High volatility expected around upcoming Fed announcement.\n"
+            "🎯 *Top Opportunity:* Sector rotation into AI-Infrastructure (observed strength in data center REITs).\n"
+            "📉 *Watchlist:* SPY showing weakness at R1 resistance.\n\n"
+            "Verdict: Maintain core positions, tighten stops on aggressive plays."
+        )
+        return briefing
         """
         Decides which specialists to call based on the user's request.
         """
@@ -92,6 +110,14 @@ class TradingDeskLead:
 
         # 1. Handle Risk Veto (Highest Priority)
         if risk_veto:
+            risk_info = analysis.get("risk_assessment", {})
+            reason = risk_info.get("reason", "No specific reason provided.")
+
+            # Trigger Urgent Telegram Notification
+            alert_msg = f"🚨 *RISK VETO TRIGGERED*\n\n*Reason:* {reason}"
+            asyncio.create_task(telegram_bot.send_message(alert_msg))
+            logger.info(f"Risk veto triggered. Sending Telegram alert: {reason}")
+
             verdict = (
                 "VERDICT: REJECTED / HIGH CAUTION\n\n"
                 "Executive Summary: Despite potentially positive signals in other areas, "
