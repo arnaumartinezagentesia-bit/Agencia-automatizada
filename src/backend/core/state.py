@@ -6,3 +6,4 @@ class AgentState(TypedDict):
     risk_veto: bool
     final_verdict: str
     strategy_hypotheses: List[Dict[str, Any]]
+    next_steps: List[str]
