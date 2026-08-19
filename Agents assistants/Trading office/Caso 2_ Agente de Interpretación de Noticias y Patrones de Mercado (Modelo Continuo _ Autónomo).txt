@@ -1,0 +1,31 @@
+Caso 2: Agente de Interpretación de Noticias y Patrones de Mercado (Modelo Continuo / Autónomo)
+(Nota: En la lista inicial aparecían "noticias" y "patrones" juntos o separados. Los analizaremos aquí con foco en la monitorización continua y detección de eventos).
+1. Identidad y Misión
+  oo   Nombre del agente: Agente de Inteligencia de Mercado y Noticias (trading_market_intelligence_agent).
+  oo   Departamento: Trading (🟦).
+  oo   Misión concreta: Monitorizar flujos continuos de datos no estructurados (titulares de noticias, calendarios económicos, feeds de anuncios macro) y datos estructurados (altas volatilidades, rupturas de niveles clave), filtrar el ruido, calificar el impacto y generar alertas contextualizadas sobre el riesgo y sesgo del mercado.
+2. Disparador y Modo de Activación
+  oo   Modo: Híbrido (Autónomo por Cron/Webhooks + Consultas bajo demanda).
+  oo   Disparadores de ejecución:
+     1.      Programado (Cron/Polling): Revisión periódica de feeds (e.g., cada 15 min, 1 hora o al cierre de vela diaria).
+     2.      Evento externo (Event-Driven / Webhook): Publicación de un dato macroeconómico relevante (IPC, tipos de interés FED/BCE, NFP) o spike anómalo de volumen/volatilidad.
+     3.      Bajo demanda: El usuario pregunta directamente: "¿Qué eventos macroeconómicos afectan hoy al par EUR/USD?" o "¿Por qué acaba de caer Bitcoin un 4%?"
+3. Entradas Requeridas (Inputs)
+  1.   Flujo de Noticias y Macro: Feeds RSS, APIs de noticias financieras, calendario económico con impacto etiquetado (alto/medio/bajo).
+  2.   Contexto de Activos Vigilados: Lista blanca de activos de interés del usuario (watchlist) para no procesar noticias irrelevantes de sectores no seguidos.
+  3.   Estado Actual del Mercado (Snapshot): Precio actual, variación porcentual reciente, volatilidad (ATR/VIX o similar calculado de forma determinista).
+4. Herramientas y Servicios Externos (Tools)
+  oo   Conector de Calendario & News Feed: APIs como Financial Modeling Prep, NewsAPI, ForexFactory scraper/API, Benzinga o CryptoPanic.
+  oo   Motor de Filtrado Determinista: Pre-filtro de palabras clave y relevancia por activo antes de llamar al LLM (para optimizar costes de tokens).
+  oo   Base de Conocimiento de Impacto Histórico: Consulta de eventos pasados similares (e.g., cómo reaccionó el mercado a subidas de tipos anteriores).
+5. Salidas Generadas (Outputs)
+  1.   Feed de Alertas / Eventos:
+     oo      Alerta estructurada: Nivel de impacto (Crítico, Alto, Medio, Ruido), Sentimiento (Bullish, Bearish, Neutral, Volatilidad incierta), Activos afectados.
+     oo      Resumen ejecutivo en 2 líneas del hecho y su posible implicación técnica/fundamental.
+  2.   Registro de Estado del Mercado (Market Context State):
+     oo      Una "foto" del contexto macro vigente que queda guardada en el sistema para que otros agentes (como el de Gestión de Riesgo) puedan consultarla.
+Memoria y Contexto Compartido: Almacén Central de Estado por departamento (Department Context Store / Blackboard Pattern). Los agentes escriben artefactos y leen el estado vigente de forma desacoplada, sin llamadas directas entre ellos.
+Orquestación y Enrutamiento (MVP): Enrutador determinista/clasificador que asigna cada mensaje a un único agente especialista por turno.
+Ciclo de Vida y Eventos Asíncronos: Los agentes autónomos generan registros estructurados que persisten directamente en el almacén central de estado, desacoplando la lógica de negocio de cómo se renderizarán en el frontend.
+Cómputo Numérico: Regla transversal inamovible: los LLMs razonan, validan y estructuran; los motores de software deterministas computan.
+

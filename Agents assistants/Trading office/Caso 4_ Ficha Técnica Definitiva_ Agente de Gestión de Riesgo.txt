@@ -1,0 +1,62 @@
+Ficha Técnica Definitiva: Agente de Gestión de Riesgo
+1. Identificación y Misión
+  oo   ID del componente: trading_risk_management_agent
+  oo   Departamento: Trading (🟦)
+  oo   Misión: Asistir al usuario como consultor cuantitativo bajo demanda para la preservación de capital, calculando de forma matemática y determinista el dimensionamiento de posición, ratio riesgo/beneficio (R:RR:RR:R), exposición total y drawdowns proyectados, tanto para consultas independientes como para estrategias persistidas en el sistema.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Bajo demanda pura (Reactivo / Consultor interactivo).
+  oo   Disparador: Consulta explícita del usuario en el chat del departamento o mención directa al agente.
+  oo   Ciclo de vida: Sesión interactiva puntual. Recibe parámetros o un strategy_id, consulta los servicios compartidos de datos y estado, ejecuta los cálculos en el motor determinista de riesgo y emite el diagnóstico cuantitativo.
+3. Entradas Requeridas (Inputs)
+  oo   Parámetros de Cuenta (Entrada del Usuario):
+     oo      Capital total o balance de cuenta disponible.
+     oo      Divisa base de la cuenta (ej. USD, EUR, USDT).
+     oo      Porcentaje de riesgo máximo tolerado por operación (R%R\%R%).
+  oo   Modo A  --  Vía Referencia de Estrategia (strategy_id):
+     oo      Identificador de un artefacto de estrategia generado previamente por el Agente de Estrategias y almacenado en el DepartmentContextStore. El agente extrae automáticamente: activo, marco temporal, reglas de entrada, nivel de stop loss y objetivo de take profit configurados.
+  oo   Modo B  --  Vía Entrada Manual:
+     oo      Activo / Símbolo (asset).
+     oo      Precio de entrada previsto (entry_price).
+     oo      Precio de stop loss (stop_loss_price).
+     oo      Precio de take profit opcional (take_profit_price).
+4. Herramientas y Servicios Externos (Tools)
+  oo   Servicio Determinista de Datos e Indicadores de Mercado (MarketDataEngine): Servicio transversal del que obtiene el precio actual del activo, el valor de ATR (Average True Range) en la temporalidad relevante y la volatilidad realizada reciente para contrastar el stop loss con el ruido de mercado.
+  oo   Almacén Central de Estado (DepartmentContextStore): Módulo de lectura para recuperar la especificación técnica de la estrategia cuando se suministra un strategy_id.
+  oo   Motor de Cálculo de Riesgo Determinista (RiskCalculatorEngine): Módulo de cálculo matemático estricto (cero inferencia LLM) que computa:
+     oo      Dimensionamiento de posición exacto (unidades/lotes/contratos).
+     oo      Monto monetario en riesgo.
+     oo      Ratio Riesgo/Beneficio (R:RR:RR:R).
+     oo      Nivel de apalancamiento efectivo.
+     oo      Proyección de pérdidas por rachas adversas consecutivas.
+5. Alcance Operativo y Lógica de Negocio
+  oo   Evaluación contextualizada: Si se provee strategy_id, analiza el riesgo dentro del marco operativo de la plantilla (ej. si la plantilla es de ruptura, evalúa la holgura del stop con respecto a las bandas de Bollinger o el ATR provisto por el MarketDataEngine).
+  oo   Autonomía y control: El agente asesora y calcula; no ejecuta órdenes en brokers ni bloquea al usuario.
+  oo   Nota de evolución futura (Roadmap): Sugerencia proactiva no bloqueante por parte del orquestador tras guardar una estrategia nueva: "¿Quieres calcular el dimensionamiento de riesgo para esta estrategia con tu capital actual?".
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON emitido al DepartmentContextStore): jsonCopy{  
+  "risk_assessment_id": "risk_calc_20261014_002",  
+  "strategy_ref_id": "strat_btc_trend_089",   
+  "asset": "BTC/USDT",  
+  "account_equity": 10000.0,  
+  "risk_percentage": 1.0,  
+  "risk_amount_fiat": 100.0,  
+  "entry_price": 60000.0,  
+  "stop_loss_price": 58500.0,  
+  "take_profit_price": 64500.0,  
+  "position_size_units": 0.06666,  
+  "position_size_notional": 4000.0,  
+  "effective_leverage": 0.4,  
+  "risk_reward_ratio": 3.0,  
+  "atr_stop_distance_ratio": 1.8,  
+  "market_volatility_snapshot": {  
+    "atr_value": 830.5,  
+    "timeframe": "1h"  
+  },  
+  "risk_tier": "conservative"  
+}  
+  oo   
+  oo   Respuesta Narrativa al Usuario:
+     oo      Indicación clara de cuántas unidades operar, riesgo monetario exacto y apalancamiento resultante.
+     oo      Diagnóstico del ratio R:RR:RR:R frente al objetivo.
+     oo      Advertencia de ruido estadístico si la distancia al stop loss es inferior a $1 \times \text{ATR}$ según los datos del MarketDataEngine.
+

@@ -1,0 +1,37 @@
+Ficha Técnica Definitiva: Agente de Generación y Optimización de Estrategias
+1. Identificación y Misión
+  oo   ID del componente: trading_strategy_agent
+  oo   Departamento: Trading (🟦)
+  oo   Misión: Asistir al usuario en la formulación, refinamiento y parametrización de hipótesis de trading sobre un catálogo cerrado de plantillas algorítmicas, garantizando la coherencia técnica de los parámetros y generando configuraciones estructuradas listas para su ejecución en el motor determinista de backtest.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Bajo demanda (Reactivo / Interactivo).
+  oo   Disparador: Petición explícita del usuario a través del chat del departamento o mención directa al agente.
+  oo   Ciclo de vida: Sesión conversacional orientada a objetivos. Finaliza cuando se emite y valida el artefacto estructurado de la estrategia.
+3. Entradas Requeridas (Inputs)
+  oo   Requisitos del usuario (Lenguaje Natural): Tesis de inversión, activo objetivo, marco temporal (timeframe) y estilo operativo deseado.
+  oo   Catálogo de plantillas soportadas (Sistema): Definiciones de esquemas cerrados admitidos en el MVP:
+     1.      trend_ma_crossover (Cruce de medias móviles simples o exponenciales).
+     2.      momentum_rsi_oscillator (Reversión a la media / Sobrecompra y sobreventa con RSI).
+     3.      volatility_bollinger_breakout (Ruptura de volatilidad y expansión de bandas de Bollinger).
+  oo   Restricciones operativas: Tolerancia al riesgo, tipo de órdenes y límites de apalancamiento definidos por el usuario.
+  oo   Contexto de mercado (Lectura opcional del Almacén Central): Snapshot de volatilidad y régimen de mercado actual para contextualizar las recomendaciones iniciales.
+4. Herramientas y Servicios Externos (Tools)
+  oo   Librería de Esquemas y Plantillas (StrategyTemplateRegistry): Repositorio local de esquemas JSON / Pydantic con tipos de datos, valores por defecto y rangos permitidos para cada plantilla.
+  oo   Validador Determinista de Parámetros (ParameterSchemaValidator): Módulo de código estricto que valida tipos, coherencia lógica (por ejemplo, asegurar que fast_period < slow_period) y límites físicos de los parámetros antes de confirmar la estrategia.
+5. Alcance Operativo y Lógica de Negocio
+  oo   Formulación: Traduce la intención del usuario a una de las tres plantillas soportadas, solicitando clarificación si la petición no encaja en el catálogo.
+  oo   Optimización guiada (MVP): Proceso dialéctico donde el agente sugiere rangos acotados y justificados de parámetros (por ejemplo, adaptar periodos según la volatilidad típica del activo), sin ejecución de algoritmos genéticos ni barridos masivos por fuerza bruta.
+  oo   Nota para fases futuras (Roadmap): La futura incorporación de un motor de optimización automática por computación pesada deberá implementar obligatoriamente un protocolo de validación walk-forward y división de datos in-sample / out-of-sample antes de catalogar cualquier combinación como recomendada, mitigando el riesgo de sobreajuste (overfitting).
+6. Salidas Producidas (Outputs)
+  oo   Artefacto Estructurado (JSON emitido al Almacén Central de Estado):
+     oo      strategy_id: Identificador único generado para la instancia de la estrategia.
+     oo      template_id: Identificador de la plantilla seleccionada (trend_ma_crossover, momentum_rsi_oscillator, volatility_bollinger_breakout).
+     oo      asset: Par o símbolo asignado (ej. BTC/USDT, EUR/USD).
+     oo      timeframe: Temporalidad de las velas (ej. 1h, 4h, 1d).
+     oo      parameters: Diccionario validado con los valores asignados a cada variable de la plantilla.
+     oo      risk_defaults: Configuración básica de stop loss y take profit requerida por el esquema.
+  oo   Respuesta Narrativa al Usuario:
+     oo      Justificación técnica y conceptual de la configuración recomendada.
+     oo      Explicación de los escenarios de mercado favorables y condiciones de fallo comunes (por ejemplo, falsas rupturas en mercados en rango para estrategias tendenciales).
+     oo      Ficha resumen de parámetros para confirmación del usuario antes de proceder a cualquier prueba cuantitativa.
+Single Source of Truth (SSoT) para el Catálogo de Estrategias: El StrategyTemplateRegistry es un módulo de infraestructura transversal y centralizado. Define el esquema canónico, los metadatos de validación y la lógica de ejecución de cada plantilla. Es consumido de forma idéntica por el Agente de Estrategias (para parametrizar y validar entradas), el Motor de Backtest (para ejecutar las simulaciones) y cualquier futuro componente. Ningún agente almacena esquemas propios ni duplicados. 

@@ -1,0 +1,56 @@
+Ficha Técnica 1: Director / Coordinador de la Mesa de Trading
+1. Identificación y Misión
+  oo   ID del componente: trading_desk_lead
+  oo   Departamento: Trading (🟦)
+  oo   Misión: Actuar como el director de operaciones y punto de contacto unificado del departamento de trading. Es responsable de recibir consultas complejas o generales del usuario, descomponer los problemas en tareas para los agentes especialistas, contrastar sus diagnósticos, resolver discrepancias o sesgos contradictorios y emitir una síntesis ejecutiva consensuada con recomendaciones claras y procesables.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Reactivo (Bajo demanda interactiva) y Orquestador Interno.
+  oo   Disparador:
+     oo      Mensaje dirigido al canal general del departamento de trading en el chat.
+     oo      Solicitudes explícitas de evaluación holística (ej. "¿Cuál es la postura del equipo sobre XAU/USD para la sesión americana de hoy?").
+  oo   Ciclo de vida: Gestiona una sesión de trabajo colegiada. Lee el estado vigente del DepartmentContextStore, orquesta la recopilación de análisis de los agentes pertinentes, aplica reglas de consenso y genera el informe unificado final.
+3. Entradas Requeridas (Inputs)
+  oo   Consulta y directivas del usuario: Tesis de inversión, horizonte temporal, capital disponible y preferencias operativas.
+  oo   Informes de los especialistas (vía DepartmentContextStore o contexto de sesión):
+     oo      Diagnóstico macro y eventos de noticias (trading_market_intelligence_agent).
+     oo      Propuestas técnicas y parametrizaciones de los subagentes (trading_strategy_agent y sus especialistas).
+     oo      Informes de viabilidad histórica (trading_backtest_agent).
+     oo      Evaluaciones de tamaño de posición y ratio riesgo/beneficio (trading_risk_management_agent).
+     oo      Historial de lecciones aprendidas y métricas pasadas (trading_journal_agent).
+  oo   Estado del mercado: Snapshot consolidado emitido por el MarketDataEngine.
+4. Herramientas y Servicios Externos (Tools)
+  oo   Lector/Escritor del Almacén de Estado (DepartmentContextStore): Para registrar las actas de decisión del comité y recuperar artefactos previos.
+  oo   Motor de Reglas de Consenso (ConsensusValidationEngine): Reglas deterministas de negocio que ponderan las opiniones (ej. si el Agente de Riesgo rechaza la operación por superar el drawdown máximo o el Agente de Noticias detecta una alerta crítica inminente, el Director tiene orden estricta de emitir dictamen desfavorable o de alta cautela).
+5. Alcance Operativo y Lógica de Negocio
+  oo   Evaluación de convergencia: Si el análisis técnico es alcista pero el análisis macro (DXY fuerte + tipos al alza) es bajista, el Director no ignora la discrepancia; la explicita al usuario y propone escenarios condicionales (ej. "Esperar ruptura de confirmación tras la noticia").
+  oo   Jerarquía de preservación de capital: La palabra del Agente de Riesgo tiene peso de veto preventivo en la síntesis final.
+  oo   Enfoque en Oro (XAU/USD): Valida que las propuestas operativas se ajusten a las sesiones de mayor liquidez (Londres/Nueva York) y respeten la volatilidad intrínseca del activo.
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON emitido al DepartmentContextStore): jsonCopy{  
+  "committee_decision_id": "comm_xau_20261014_001",  
+  "asset": "XAU/USD",  
+  "session_context": "US_Pre_Open",  
+  "consensus_bias": "cautious_bullish",  
+  "risk_approval_status": "approved_with_conditions",  
+  "participating_agents": [  
+    "trading_market_intelligence_agent",  
+    "session_liquidity_specialist",  
+    "trading_risk_management_agent"  
+  ],  
+  "key_takeaways": [  
+    "Soporte técnico respetado en $2,640 tras barrido de liquidez asiática",  
+    "Noticia NFP a las 14:30 UTC: no abrir posiciones antes de las 14:45 UTC",  
+    "Riesgo acotado a 1% con stop loss en $2,632"  
+  ],  
+  "actionable_plan": {  
+    "trigger_condition": "Entrada en pullback tras vela de 15m post-NFP",  
+    "recommended_position_size": 0.5,  
+    "stop_loss": 2632.0,  
+    "take_profit": 2660.0  
+  }  
+}  
+  oo   
+  oo   Respuesta Narrativa al Usuario:
+     oo      Resumen ejecutivo estructurado en 3 puntos: Contexto Macro, Configuración Técnica y Gestión de Riesgo.
+     oo      Veredicto unificado del equipo con directrices paso a paso.
+

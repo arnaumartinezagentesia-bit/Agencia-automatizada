@@ -1,0 +1,47 @@
+Ficha Técnica 2: Agente de Auditoría y Diario de Trading
+1. Identificación y Misión
+  oo   ID del componente: trading_journal_agent
+  oo   Departamento: Trading (🟦)
+  oo   Misión: Registrar, auditar y categorizar de forma sistemática todas las operaciones simuladas o ejecutadas por el usuario y las propuestas del equipo, detectando patrones de error recurrentes (como operar contra tendencia, saltarse el plan de riesgo o sobreoperar en horarios ilíquidos), generando métricas de aprendizaje continuo para retroalimentar al departamento.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Híbrido (Registro reactivo tras cada operación + Generación de informes periódicos programados/bajo demanda).
+  oo   Disparador:
+     oo      Finalización de un trade (ingreso del cierre por el usuario o por simulación).
+     oo      Petición de informe de rendimiento del usuario (ej. "¿Cómo ha sido mi disciplina operativa este mes en el oro?").
+     oo      Cron semanal/mensual de auditoría de rendimiento.
+  oo   Ciclo de vida: Persistente. Mantiene la base histórica de operaciones y auditorías analíticas en la base de datos del departamento.
+3. Entradas Requeridas (Inputs)
+  oo   Registro de la operación (Trade Execution Log): Ticket ID, activo (XAU/USD), precio de entrada, precio de salida, timestamp de apertura y cierre, tamaño de posición, stop loss inicial, comisiones, resultado monetario y porcentual.
+  oo   Contexto de la decisión: Si la operación fue aprobada por el comité, qué estrategia se usó (strategy_id) y qué estado de mercado existía en ese momento en el DepartmentContextStore.
+  oo   Etiquetado cualitativo del usuario: Notas emocionales o motivos del cierre anticipado (si los hubo).
+4. Herramientas y Servicios Externos (Tools)
+  oo   Motor Estadístico Determinista de Rendimiento (PerformanceMetricsCalculator): Módulo matemático que computa:
+     oo      Ratio de Acierto (Win Rate), Profit Factor, Ganancia Media vs. Pérdida Media.
+     oo      Ratio RRR capturado real vs. RRR planificado (medición de disciplina en salidas).
+     oo      Desglose de rentabilidad por sesión (Asia, Londres, Nueva York).
+     oo      Tasa de cumplimiento del plan de riesgo (porcentaje de operaciones que respetaron el stop loss original).
+  oo   Almacén de Operaciones (TradeJournalRepository): Base de datos relacional para persistencia de historiales de trades.
+5. Alcance Operativo y Lógica de Negocio
+  oo   Detección de patrones de comportamiento perjudiciales:
+     oo      Identificar si las pérdidas ocurren predominantemente en ciertos días de la semana o ventanas horarias de baja liquidez.
+     oo      Medir el impacto de cerrar operaciones prematuramente antes de alcanzar el take profit previsto.
+  oo   Auditoría de consistencia: Compara si las operaciones del usuario se apegaron a las plantillas del StrategyTemplateRegistry o si fueron trades discrecionales no estructurados.
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON): jsonCopy{  
+  "audit_report_id": "audit_monthly_202610",  
+  "sample_size_trades": 24,  
+  "win_rate": 54.17,  
+  "profit_factor": 1.85,  
+  "avg_r_multiple": 1.42,  
+  "risk_discipline_score": 87.5,  
+  "key_leaks_detected": [  
+    "El 75% de las pérdidas ocurrieron durante la sesión asiática en XAU/USD",  
+    "3 operaciones cerradas manualmente antes de tiempo que hubiesen alcanzado TP"  
+  ],  
+  "top_performing_strategy": "session_liquidity_breakout_ny"  
+}  
+  oo   
+  oo   Respuesta Narrativa al Usuario:
+     oo      Diagnóstico claro y constructivo sobre los puntos fuertes y las fugas de capital (leaks) detectadas.
+     oo      Recomendaciones concretas de corrección de hábitos para las siguientes sesiones de trading.
+

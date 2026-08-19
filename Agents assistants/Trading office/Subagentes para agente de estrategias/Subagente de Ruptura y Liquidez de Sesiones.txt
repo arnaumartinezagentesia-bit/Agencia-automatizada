@@ -1,0 +1,42 @@
+Ficha Técnica 3: Subagente de Ruptura y Liquidez de Sesiones
+1. Identificación y Misión
+  oo   ID del componente: session_liquidity_specialist
+  oo   Departamento: Trading (🟦)  --  Área de Estrategias Técnicas.
+  oo   Misión: Especializarse en la estructura intradía del oro (XAU/USD), analizando los rangos de precios de la sesión asiática (Asian Range), identificando zonas de acumulación de liquidez (máximos y mínimos previos de sesión) y detectando patrones de barrido y ruptura (liquidity sweep & breakout) durante las aperturas de Londres y Nueva York.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Reactivo (Consultado por el Agente de Estrategias o el Director) y Evaluación de Plantilla.
+  oo   Disparador: Solicitud de análisis de estructura intradía o ejecución de la plantilla de liquidez en backtest.
+  oo   Ciclo de vida: Efímero por consulta. Procesa las series temporales de 5m/15m/1h del MarketDataEngine, calcula los niveles de sesión y emite su lectura técnica.
+3. Entradas Requeridas (Inputs)
+  oo   Velas intradía (XAU/USD): Series temporales en marcos de 5m, 15m y 1h con marcas de tiempo precisas en UTC provistas por el MarketDataEngine.
+  oo   Definición de Horarios de Sesión (Configuración del Sistema):
+     oo      Sesión Asiática: 00:00  -  07:00 UTC (Rango de referencia).
+     oo      Apertura de Londres (Killzone): 07:30  -  10:30 UTC.
+     oo      Solapamiento Nueva York / Londres: 13:00  -  16:30 UTC.
+4. Herramientas y Servicios Externos (Tools)
+  oo   Calculador Determinista de Rangos y Liquidez (SessionRangeEngine):
+     oo      Algoritmo que calcula automáticamente el Máximo Asiático (Asian High), Mínimo Asiático (Asian Low) y el punto medio (Equilibrium).
+     oo      Detección matemática de Sweeps (precio que rebasa el máximo/mínimo asiático por NNN pips/dólares y cierra rápidamente por dentro de la vela).
+  oo   Plantilla de Estrategia Soportada: Acceso al esquema canónico en StrategyTemplateRegistry para parametrizar esta operativa.
+5. Alcance Operativo y Lógica de Negocio
+  oo   Especialización técnica en Oro: El oro es altamente propenso a barrer la liquidez de la sesión asiática en la apertura de Londres antes de definir la dirección real del día. Este subagente se enfoca en no quedar atrapado en rupturas falsas.
+  oo   Salida binaria de confirmación: Identifica si la sesión actual se encuentra en fase de rango, barrido de liquidez o tendencia intradiaria definida.
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON): jsonCopy{  
+  "liquidity_snapshot_id": "liq_xau_20261014_0830",  
+  "asset": "XAU/USD",  
+  "asian_high": 2645.50,  
+  "asian_low": 2638.20,  
+  "asian_range_usd": 7.30,  
+  "current_status": "london_sweep_detected",  
+  "sweep_direction": "swept_asian_low",  
+  "reversal_confirmation": true,  
+  "proposed_setup": {  
+    "bias": "long",  
+    "invalidation_level": 2636.80,  
+    "target_liquidity": 2645.50  
+  }  
+}  
+  oo   
+  oo   Diagnóstico Técnico: Explicación precisa de la posición actual del precio con respecto a los niveles de la sesión y propuesta de zonas de entrada y stop.
+

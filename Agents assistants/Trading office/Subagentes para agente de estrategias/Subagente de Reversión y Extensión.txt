@@ -1,0 +1,39 @@
+Subagente de Reversión y Extensión
+1. Identificación y Misión
+  oo   ID del componente: mean_reversion_specialist
+  oo   Departamento: Trading (🟦)  --  Área de Estrategias Técnicas.
+  oo   Misión: Detectar condiciones de estiramiento excesivo o agotamiento del precio del oro (XAU/USD) tanto en gráficos intradiarios (15m, 1h) como diarios, utilizando osciladores cuantitativos, desviaciones estándar de Bollinger y divergencias de momento para proponer entradas de retroceso a la media o alertar de techos/suelos locales.
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Reactivo (Consultado por el Agente de Estrategias o Director) y Ejecución en Backtesting.
+  oo   Disparador: Solicitud de análisis de sobrecompra/sobreventa o parametrización de estrategias de reversión.
+  oo   Ciclo de vida: Recibe indicadores computados por el MarketDataEngine, evalúa condiciones de agotamiento y devuelve el análisis de probabilidad de reversión.
+3. Entradas Requeridas (Inputs)
+  oo   Datos técnicos (MarketDataEngine):
+     oo      Serie de precios de XAU/USD (15m, 1h, 4h).
+     oo      Valores de osciladores calculados matemáticamente: RSI (14 periodos), Desviaciones estándar frente a Media Móvil (Bandas de Bollinger 20 periodos, 2 desviaciones) y ATR.
+  oo   Niveles clave de soporte y resistencia horizontal: Puntos de pivote diarios o zonas de oferta/demanda relevantes.
+4. Herramientas y Servicios Externos (Tools)
+  oo   Detector Determinista de Divergencias (DivergenceDetectorEngine):
+     oo      Algoritmo que compara los picos y valles del precio con los picos y valles del RSI, identificando divergencias regulares (señal de reversión) u ocultas (señal de continuación).
+  oo   Calculador de Desviación Z-Score: Mide cuántas desviaciones estándar se encuentra el precio respecto a su media móvil ponderada.
+5. Alcance Operativo y Lógica de Negocio
+  oo   Contextualización de la reversión: El oro en fuerte tendencia puede mantenerse en sobrecompra durante días; por ello, este agente exige confluencia obligatoria (ej. sobrecompra en RSI + toque del límite superior de Bollinger + divergencia bajista) antes de calificar una hipótesis de reversión como válida.
+  oo   Delimitación de objetivos: Toda hipótesis de reversión define su take profit natural en la media móvil central de 20 periodos (Mean), no en el extremo opuesto.
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON): jsonCopy{  
+  "reversion_snapshot_id": "rev_xau_20261014_1100",  
+  "asset": "XAU/USD",  
+  "timeframe": "1h",  
+  "rsi_14": 76.4,  
+  "bollinger_upper_touch": true,  
+  "z_score_deviation": 2.45,  
+  "divergence_detected": {  
+    "type": "regular_bearish",  
+    "strength": "high"  
+  },  
+  "reversion_probability_tier": "high",  
+  "suggested_target_mean": 2638.00  
+}  
+  oo   
+  oo   Diagnóstico Técnico: Explicación detallada de los factores de agotamiento identificados, alertando contra compras tardías (FOMO) y definiendo los niveles de invalidación en caso de que la fuerza compradora continúe.
+

@@ -1,0 +1,53 @@
+Ficha Técnica de Especificación: Agente de Backtest
+1. Identidad y Misión
+  oo   Identificador del Agente: trading_backtest_agent
+  oo   Departamento: Trading (🟦)
+  oo   Misión Concreta: Evaluar cuantitativamente estrategias de trading basadas en plantillas parametrizadas sobre series temporales históricas, delegando el cálculo matemático íntegramente a un motor determinista y generando un diagnóstico estructurado, cualitativo y accionable para el usuario.
+2. Modelo Operativo y Ciclo de Vida
+  oo   Modo de Activación: Bajo demanda pura (Reactivo / Síncrono-Asíncrono según la ventana temporal y resolución de datos).
+  oo   Disparador: Solicitud explícita del usuario desde el chat o formulario de configuración de la oficina de Trading.
+  oo   Flujo de Interacción:
+     1.      El usuario selecciona y completa una plantilla preconfigurada de estrategia (o el sistema la valida y muestra para confirmación explícita previa a la ejecución).
+     2.      El agente valida la coherencia de los parámetros.
+     3.      El agente construye la carga de trabajo (payload) y la envía al motor determinista.
+     4.      El motor ejecuta la simulación histórica y devuelve métricas brutas y series temporales.
+     5.      El LLM interpreta los resultados, evalúa riesgos/debilidades estructurales y redacta el informe para el usuario.
+     6.      Finaliza el ciclo: no invoca a otros agentes de forma autónoma.
+3. Entradas Requeridas (Inputs Estructurados)
+El agente procesa un esquema de entrada estricto:
+  oo   Identificador de Plantilla de Estrategia: Tipo de lógica predefinida (ej. trend_following_crossover, mean_reversion_rsi, breakout_donchian, bollinger_bands_squeeze).
+  oo   Parámetros Específicos de la Plantilla: Valores numéricos de los indicadores (ej. periodos de medias móviles, umbrales de sobrecompra/sobreventa, multiplicadores de volatilidad).
+  oo   Parámetros del Instrumento:
+     oo      Símbolo del activo (ej. BTC/USDT, ETH/USDT, EUR/USD, SPY).
+     oo      Temporalidad / Timeframe (ej. 5m, 15m, 1h, 4h, 1d).
+     oo      Rango temporal de evaluación (Fecha inicio y Fecha fin en formato ISO 8601).
+  oo   Condiciones de Simulación y Ejecución:
+     oo      Capital inicial (ej. 10.000 USD).
+     oo      Comisiones por operación (Maker/Taker fees expresadas en porcentaje o tarifa fija).
+     oo      Deslizamiento estimado (Slippage en pips o porcentaje).
+     oo      Reglas de ejecución: Posición máxima permitida, apalancamiento máximo, tipo de operativa (Long-only, Short-only, Long/Short).
+     oo      Reglas de gestión de posición: Stop Loss (fijo/trailing en % o ATR) y Take Profit (fijo o por ratio riesgo/beneficio).
+4. Herramientas y Servicios Externos (Tools & Engine Interfaces)
+En cumplimiento de la regla transversal (cero cómputo crítico en el LLM), el agente interactúa con dos interfaces deterministas:
+  oo   Herramienta 1  --  Proveedor de Datos de Mercado (market_data_service):
+     oo      Descarga y valida la integridad de los datos históricos de velas (OHLCV) para el rango y activo solicitados, verificando que no existan huecos de datos (gaps) ni anomalías de formato.
+  oo   Herramienta 2  --  Motor Determinista de Backtesting (backtest_engine):
+     oo      Motor computacional en backend (ej. wrapper de VectorBT, Backtrader o motor vectorizado propietario en Python).
+     oo      Ejecuta la simulación matemática sin intervención heurística del LLM.
+     oo      Devuelve una estructura de datos normalizada con la curva de capital y todas las métricas estadísticas calculadas.
+5. Salidas Generadas (Outputs)
+El agente devuelve una respuesta compuesta por dos capas:
+  oo   Capa 1: Payload Estructurado (para renderizado en UI y persistencia):
+     oo      Métricas de Rendimiento: Retorno total (%), Retorno Anualizado (CAGR %), Buy & Hold Return de referencia.
+     oo      Métricas de Riesgo: Máximo Drawdown (MDD en % y duración temporal en días/horas), Ratio de Sharpe, Ratio de Sortino, Ratio de Calmar.
+     oo      Estadísticas Operativas: Total de operaciones ejecutadas, Win Rate (%), Tasa de pérdida (%), Profit Factor, Ratio Ganancia Media / Pérdida Media, Racha máxima de pérdidas consecutivas, Tiempo medio de permanencia en posición.
+     oo      Series Temporales: Curva de equidad (Equity curve) y serie histórica de drawdown para visualización gráfica.
+     oo      Registro de Operaciones (Trade Log resumido): Tabla de entradas, salidas, precios ejecutados, fees pagadas y resultado individual en PnL y R-múltiplo.
+  oo   Capa 2: Informe Narrativo / Diagnóstico del LLM (para el usuario):
+     oo      Veredicto Ejecutivo: Diagnóstico conciso sobre la viabilidad estadística inicial de la configuración probada.
+     oo      Detección de Patologías y Riesgos:
+        oo         Alertas de sobreajuste potencial (ej. rendimiento excesivamente concentrado en pocos trades atípicos).
+        oo         Comportamiento en regímenes de mercado adversos (ej. cómo rinde en tendencias versus rangos laterales).
+        oo         Análisis de fatiga de capital (si el drawdown supera los umbrales razonables de preservación de cuenta).
+     oo      Observaciones accionables: Comentarios específicos sobre el impacto de las comisiones en temporalidades bajas o la sensibilidad del Stop Loss, manteniéndose en un rol consultivo sin forzar la ejecución de otros agentes.
+

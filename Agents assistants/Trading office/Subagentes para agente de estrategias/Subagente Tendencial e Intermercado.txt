@@ -1,0 +1,38 @@
+Subagente Tendencial e Intermercado
+1. Identificación y Misión
+  oo   ID del componente: macro_trend_specialist
+  oo   Departamento: Trading (🟦)  --  Área de Estrategias Técnicas.
+  oo   Misión: Determinar el sesgo direccional dominante de medio y largo plazo en el oro (XAU/USD), analizando la estructura técnica de velas diarias/4 horas y correlacionándola matemáticamente con los movimientos del Índice Dólar (DXY) y los Rendimientos de Bonos del Tesoro a 10 años (US10Y).
+2. Modo de Activación y Ciclo de Vida
+  oo   Modo: Reactivo (Consultado por el Director o Agente de Estrategias) y Actualización periódica en el Context Store.
+  oo   Disparador: Solicitud de análisis de sesgo macro/tendencial o al cierre de cada vela diaria/4h.
+  oo   Ciclo de vida: Procesa los datos multi-activo del MarketDataEngine, calcula coeficientes de correlación y emite el informe de sesgo direccional.
+3. Entradas Requeridas (Inputs)
+  oo   Series temporales diarias y 4h (MarketDataEngine): Velas de XAU/USD, DXY (Índice Dólar) y US10Y (Rendimiento del Bono Americano).
+  oo   Indicadores Técnicos de Tendencia: Medias móviles exponenciales clave (EMA 50, EMA 200) y estructura de máximos/mínimos crecientes o decrecientes.
+4. Herramientas y Servicios Externos (Tools)
+  oo   Motor Determinista de Correlaciones Intermercado (IntermarketAnalyticsEngine):
+     oo      Computa el Coeficiente de Correlación de Pearson a 30 y 90 días entre el Oro y el DXY / US10Y.
+     oo      Valida si la correlación inversa tradicional (Oro sube cuando Dólar/Tipos bajan) está activa o desacoplada (ej. en crisis geopolíticas donde Oro y Dólar suben a la vez como refugio).
+  oo   Módulo de Detección de Estructura de Tendencia: Identificación algorítmica de fases (Alcista, Bajista, Consolidación / Acumulación).
+5. Alcance Operativo y Lógica de Negocio
+  oo   Filtro direccional mayor: Evita que el usuario o el equipo tomen posiciones cortas agresivas cuando la macro y la estructura diaria del oro están en una tendencia alcista institucional sin fisuras.
+  oo   Detección de anomalías intermercado: Alerta si el oro muestra fortaleza relativa inusual mientras el dólar también sube, señalando una fuerte demanda geopolítica subyacente.
+6. Salidas Producidas (Outputs)
+Artefacto Estructurado (JSON): jsonCopy{  
+  "trend_macro_id": "trend_xau_20261014",  
+  "asset": "XAU/USD",  
+  "daily_structure": "strong_bullish",  
+  "ema_alignment": "bullish_stack_50_above_200",  
+  "intermarket_context": {  
+    "dxy_trend": "bearish_correction",  
+    "us10y_trend": "neutral",  
+    "gold_dxy_correlation_30d": -0.82,  
+    "regime": "standard_inverse_correlation"  
+  },  
+  "macro_bias_score": 8.5,  
+  "directional_recommendation": "only_longs_favored_on_pullbacks"  
+}  
+  oo   
+  oo   Diagnóstico Técnico: Resumen claro del estado de la tendencia mayor y de cómo los activos intermercado respaldan o contradicen el movimiento del oro.
+
