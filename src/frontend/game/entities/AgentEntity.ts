@@ -5,6 +5,7 @@ export type AgentState = 'IDLE' | 'WORKING' | 'THINKING' | 'ALERT' | 'COLLABORAT
 
 export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
   private state: AgentState = 'IDLE';
+  private agentId: string = '';
   private target: Phaser.GameObjects.GameObject | null = null;
   private stateTimer: number = 0;
   private moveSpeed: number = 100;
@@ -22,8 +23,21 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
     this.agentName = name;
   }
 
+  public setAgentId(id: string) {
+    this.agentId = id;
+  }
+
+  public getAgentId(): string {
+    return this.agentId;
+  }
+
   public getName(): string {
     return this.agentName;
+  }
+
+  public syncState(newState: AgentState) {
+    console.log(`Syncing ${this.agentId} to state ${newState}`);
+    this.setState(newState);
   }
 
   public setState(newState: AgentState) {

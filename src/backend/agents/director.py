@@ -20,6 +20,37 @@ class TradingDeskLead:
             "backtest": ["backtest", "performance", "cagr", "sharpe", "metrics", "historical"]
         }
 
+    def generate_hypotheses(self, conditions: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Generates multiple strategy hypothesis variants based on provided conditions.
+        """
+        symbol = conditions.get("symbol", "AAPL")
+        base_strategy = conditions.get("strategy", "Breakout")
+        base_period = conditions.get("period", 252)
+
+        logger.info(f"Generating hypotheses for {symbol} using {base_strategy}")
+
+        # Generate 3 variants with different parameters
+        hypotheses = [
+            {
+                "id": "variant_1",
+                "description": "Conservative: Longer lookback, tighter stop",
+                "params": {"symbol": symbol, "period": base_period * 1.5, "strategy": base_strategy, "risk_profile": "conservative"}
+            },
+            {
+                "id": "variant_2",
+                "description": "Balanced: Standard lookback",
+                "params": {"symbol": symbol, "period": base_period, "strategy": base_strategy, "risk_profile": "balanced"}
+            },
+            {
+                "id": "variant_3",
+                "description": "Aggressive: Shorter lookback, wider stop",
+                "params": {"symbol": symbol, "period": base_period * 0.5, "strategy": base_strategy, "risk_profile": "aggressive"}
+            }
+        ]
+
+        return hypotheses
+
     def route(self, state: Dict[str, Any]) -> Set[str]:
         """
         Decides which specialists to call based on the user's request.

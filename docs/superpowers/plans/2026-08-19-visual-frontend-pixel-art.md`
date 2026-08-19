@@ -1,0 +1,152 @@
+# Visual Frontend & Game World Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Implement a gamified "Enterprise" interface using Next.js and Phaser.js, where AI agents are represented as pixel-art characters in specialized offices, reacting in real-time to the backend's state.
+
+**Architecture:** A React-based shell (Next.js) wrapping a Phaser.js game canvas. The game world synchronizes with the Python backend via WebSockets, updating agent animations and positions based on the `AgentState`.
+
+**Tech Stack:** Next.js, Phaser.js, Tailwind CSS, Lucide-React, WebSockets (Socket.io or native).
+
+**Spec:** `docs/superpowers/specs/2026-08-19-agentes-ia-trading-enterprise-design.md`
+
+## Global Constraints
+- **Visual Style:** Pixel Art / Stardew Valley aesthetic.
+- **Real-time Sync:** Agent visual states (Idle, Working, Alert) must mirror backend `AgentState` via WebSockets.
+- **Responsiveness:** The game canvas should scale to the browser window while maintaining the pixel-art aspect ratio.
+- **Interface:** UI panels (Chat, Strategy Builder) must be overlays on top of the game world.
+
+---
+
+## File Structure
+
+### Frontend Core
+- `src/frontend/pages/index.tsx`: Main entry point.
+- `src/frontend/components/GameContainer.tsx`: Wrapper for the Phaser game instance.
+- `src/frontend/components/UIOverlay.tsx`: Manager for chat and strategy panels.
+
+### Phaser Game Logic (`/src/frontend/game/`)
+- `src/frontend/game/main.ts`: Phaser game configuration and scene management.
+- `src/frontend/game/scenes/OfficeScene.ts`: The main office world logic.
+- `src/frontend/game/entities/AgentEntity.ts`: The "Personita" class (state machine, animations).
+- `src/frontend/game/entities/OfficeObject.ts`: Interactive objects (Computers, Coffee Machine).
+- `src/frontend/game/systems/SocketSystem.ts`: WebSocket client for real-time updates.
+- `src/frontend/game/assets/Assets.ts`: Asset manifest (spritesheets, tilesets).
+
+### UI Components (`/src/frontend/components/ui/`)
+- `src/frontend/components/ui/ChatPanel.tsx`: Chat interface for talking to agents.
+- `src/frontend/components/ui/StrategyBuilder.tsx`: Interactive form for strategy conditions.
+- `src/frontend/components/ui/StatusHUD.tsx`: Top-bar showing overall system health.
+
+---
+
+## Implementation Tasks
+
+### Task 1: Frontend Scaffolding & Phaser Integration
+
+**Files:**
+- Create: `src/frontend/pages/index.tsx`
+- Create: `src/frontend/components/GameContainer.tsx`
+- Create: `src/frontend/game/main.ts`
+- Create: `src/frontend/game/scenes/OfficeScene.ts`
+
+- [ ] **Step 1: Setup Next.js project structure**
+- [ ] **Step 2: Implement `GameContainer` component**
+  - Create a `div` as the game mount point.
+  - Initialize Phaser game instance inside `useEffect`.
+- [ ] **Step 3: Create `OfficeScene`**
+  - Set up a basic scene with a solid background color.
+  - Implement a simple "Hello World" text in pixel font.
+- [ ] **Step 4: Verify canvas renders in browser**
+- [ ] **Step 5: Commit**
+  `git commit -m "feat: frontend scaffolding and phaser integration"`
+
+### Task 2: Map Design & Office Layout
+
+**Files:**
+- Create: `src/frontend/game/assets/Assets.ts`
+- Modify: `src/frontend/game/scenes/OfficeScene.ts`
+- Create: `src/frontend/game/entities/OfficeObject.ts`
+
+- [ ] **Step 1: Define Asset Manifest**
+  - Add placeholders for tilesets (floor, walls) and object sprites (computers, coffee machine).
+- [ ] **Step 2: Implement Map Rendering**
+  - Create a basic 2D grid layout representing the different offices (Trading, Risk, Director).
+- [ ] **Step 3: Implement `OfficeObject` entities**
+  - Place static objects (Computers, Tables) at specific coordinates in the rooms.
+- [ ] **Step 4: Verify map layout in browser**
+- [ ] **Step 5: Commit**
+  `git commit -m "feat: implement office map and static objects"`
+
+### Task 3: Agent Entities & Animation State Machine
+
+**Files:**
+- Create: `src/frontend/game/entities/AgentEntity.ts`
+- Modify: `src/frontend/game/scenes/OfficeScene.ts`
+
+- [ ] **Step 1: Implement `AgentEntity` class**
+  - Extend `Phaser.Physics.Arcade.Sprite`.
+  - Define internal states: `IDLE`, `WORKING`, `THINKING`, `ALERT`, `COLLABORATING`.
+- [ ] **Step 2: Implement Animation Controller**
+  - Map states to animations (e.g., `WORKING` $\rightarrow$ typing animation).
+  - Implement a simple "Wander" behavior for `IDLE` state.
+- [ ] **Step 3: Add Agent spawning logic to `OfficeScene`**
+  - Spawn one personita per agent defined in the backend.
+- [ ] **Step 4: Verify agent movement and animation cycles**
+- [ ] **Step 5: Commit**
+  `git commit -m "feat: implement agent entities and state animations"`
+
+### Task 4: WebSocket Integration & Real-time Sync
+
+**Files:**
+- Create: `src/frontend/game/systems/SocketSystem.ts`
+- Modify: `src/frontend/game/entities/AgentEntity.ts`
+- Modify: `src/backend/main.py` (Add WebSocket endpoint)
+
+- [ ] **Step 1: Implement `SocketSystem` in Frontend**
+  - Create a WebSocket client to connect to the FastAPI server.
+  - Define message handlers for `agent_state_update` events.
+- [ ] **Step 2: Implement WebSocket endpoint in Backend**
+  - Create a `/ws` endpoint in FastAPI.
+  - Implement a broadcaster that pushes `AgentState` updates when they change.
+- [ ] **Step 3: Connect Agent Entities to Socket Updates**
+  - When a socket message arrives for `agent_id: X`, update `AgentEntity(X).state`.
+- [ ] **Step 4: Verify that updating state in backend triggers animation change in frontend**
+- [ ] **Step 5: Commit**
+  `git commit -m "feat: implement real-time websocket synchronization"`
+
+### Task 5: UI Panels & Strategy Builder
+
+**Files:**
+- Create: `src/frontend/components/UIOverlay.tsx`
+- Create: `src/frontend/components/ui/ChatPanel.tsx`
+- Create: `src/frontend/components/ui/StrategyBuilder.tsx`
+- Modify: `src/frontend/pages/index.tsx`
+
+- [ ] **Step 1: Implement `UIOverlay` and layout**
+  - Create a transparent layer over the game canvas for React components.
+- [ ] **Step 2: Implement `ChatPanel`**
+  - Connect to `/api/chat`.
+  - Display messages with pixel-art styles.
+- [ ] **Step 3: Implement `StrategyBuilder` Panel**
+  - Create the interactive form (dropdowns, inputs) for strategy conditions.
+  - Connect to `/api/strategy/generate`.
+- [ ] **Step 4: Implement "Open Panel" trigger from Game World**
+  - Clicking an agent or the Director opens the corresponding panel.
+- [ ] **Step 5: Verify full flow: Panel $\rightarrow$ API $\rightarrow$ Backend $\rightarrow$ Animation $\rightarrow$ Panel Response.**
+- [ ] **Step 6: Commit**
+  `git commit -m "feat: implement interactive UI panels and strategy builder"`
+
+### Task 6: Visual Polish & Final Integration
+
+**Files:**
+- Modify: `src/frontend/game/scenes/OfficeScene.ts`
+- Modify: `src/frontend/game/entities/AgentEntity.ts`
+
+- [ ] **Step 1: Implement "Inter-Agent" interaction**
+  - Logic for agents to move toward the meeting table when the Director starts a synthesis.
+- [ ] **Step 2: Add visual cues (Thought Bubbles, Alert icons)**
+- [ ] **Step 3: Final UI/UX polish (Tailwind styling, transitions)**
+- [ ] **Step 4: End-to-End verification of the "Enterprise Simulation" experience.**
+- [ ] **Step 5: Commit**
+  `git commit -m "feat: finalize visual polish and agent interactions"`

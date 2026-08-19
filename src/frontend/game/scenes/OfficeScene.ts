@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { Assets } from '../assets/Assets';
 import { OfficeObject } from '../entities/OfficeObject';
-import { AgentEntity } from '../entities/AgentEntity';
+import { AgentEntity, AgentState } from '../entities/AgentEntity';
+import { socketSystem } from '../systems/SocketSystem';
 
 export class OfficeScene extends Phaser.Scene {
   private officeObjects: OfficeObject[] = [];
@@ -34,6 +35,17 @@ export class OfficeScene extends Phaser.Scene {
     this.createOfficeObjects();
     this.createAgentAnimations();
     this.spawnAgents();
+    this.setupSocketSync();
+  }
+
+  private setupSocketSync() {
+    socketSystem.connect();
+    socketSystem.on('AGENT_STATE_UPDATE', (payload) => {
+      const agent = this.agents.find(a => a.getAgentId() === payload.agentId);
+      if (agent && payload.state) {
+        agent.syncState(payload.state as AgentState);
+      }
+    });
   }
 
   update(time: number, delta: number) {
@@ -180,6 +192,7 @@ export class OfficeScene extends Phaser.Scene {
 
     agentPositions.forEach((pos, index) => {
       const agent = new AgentEntity(this, pos.x, pos.y, 'personita');
+      agent.setAgentId(`Agent${index + 1}`);
       agent.setName(`Agent ${index + 1} (${pos.room})`);
       this.agents.push(agent);
     });
