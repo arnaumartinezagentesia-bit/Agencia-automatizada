@@ -3,6 +3,10 @@ fastapi
 uvicorn[standard]
 pydantic
 pydantic-settings
+langgraph
+langchain
+langchain-openai
+langchain-anthropic
 
 # Database & Cache
 psycopg2-binary
@@ -14,11 +18,12 @@ packaging>=24.0
 pyyaml>=6.0
 requests>=2.31.0
 scipy>=1.13.1
-yfinance>=0.2.0
+yfinance>=0.20.0
 tree-sitter
 
 # Alerts
 python-telegram-bot
+httpx
 
 # Utilities
 python-dotenv
