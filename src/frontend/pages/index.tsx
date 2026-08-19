@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import GameContainer from '../components/GameContainer';
+import UIOverlay from '../components/UIOverlay';
 
 const IndexPage = () => {
     return (
@@ -12,7 +13,8 @@ const IndexPage = () => {
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            position: 'relative'
         }}>
             <Head>
                 <title>Trading Enterprise - Game</title>
@@ -23,7 +25,10 @@ const IndexPage = () => {
                 Trading Enterprise
             </h1>
 
-            <GameContainer />
+            <div style={{ position: 'relative', width: '800px', height: '600px' }}>
+                <GameContainer />
+                <UIOverlay />
+            </div>
 
             <p style={{ marginTop: '20px', color: '#aaa' }}>
                 Phaser Integration Verification
