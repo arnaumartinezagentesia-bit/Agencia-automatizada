@@ -7,6 +7,7 @@ import { socketSystem } from '../systems/SocketSystem';
 export class OfficeScene extends Phaser.Scene {
   private officeObjects: OfficeObject[] = [];
   private agents: AgentEntity[] = [];
+  private meetingTable: OfficeObject | null = null;
 
   constructor() {
     super('OfficeScene');
@@ -44,6 +45,21 @@ export class OfficeScene extends Phaser.Scene {
       const agent = this.agents.find(a => a.getAgentId() === payload.agentId);
       if (agent && payload.state) {
         agent.syncState(payload.state as AgentState);
+      }
+    });
+
+    socketSystem.on('DIRECTOR_SYNTHESIS_START', () => {
+      console.log('Director starting synthesis! Agents gathering...');
+      if (this.meetingTable) {
+        this.agents.forEach((agent, index) => {
+          // Calculate a position around the table so they don't overlap
+          const angle = (index / this.agents.length) * Math.PI * 2;
+          const radius = 40;
+          const targetX = this.meetingTable!.x + Math.cos(angle) * radius;
+          const targetY = this.meetingTable!.y + Math.sin(angle) * radius;
+
+          agent.setTarget({ x: targetX, y: targetY } as any);
+        });
       }
     });
   }
@@ -142,6 +158,15 @@ export class OfficeScene extends Phaser.Scene {
       interactive: true,
       callback: () => console.log('Brewing coffee for the night shift...'),
     }));
+
+    this.meetingTable = new OfficeObject(this, {
+      x: 22 * tileSize,
+      y: 22 * tileSize,
+      texture: 'desk',
+      name: 'Meeting Table',
+      interactive: true,
+    });
+    this.officeObjects.push(this.meetingTable);
   }
 
   private createAgentAnimations() {

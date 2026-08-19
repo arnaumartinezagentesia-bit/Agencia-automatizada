@@ -6,10 +6,11 @@ export type AgentState = 'IDLE' | 'WORKING' | 'THINKING' | 'ALERT' | 'COLLABORAT
 export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
   private state: AgentState = 'IDLE';
   private agentId: string = '';
-  private target: Phaser.GameObjects.GameObject | null = null;
+  private target: Phaser.GameObjects.GameObject | Phaser.Math.Vector2 | null = null;
   private stateTimer: number = 0;
   private moveSpeed: number = 100;
   private agentName: string = 'Agent';
+  private bubble: Phaser.GameObjects.Text | null = null;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
@@ -17,6 +18,49 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setCollideWorldBounds(true);
+
+    this.createBubble();
+  }
+
+  private createBubble() {
+    this.bubble = this.scene.add.text(0, 0, '', {
+      fontSize: '12px',
+      backgroundColor: '#334155',
+      padding: { x: 4, y: 2 },
+      color: '#fff',
+    });
+    this.bubble.setVisible(false);
+    this.bubble.setOrigin(0.5);
+  }
+
+  private updateBubble() {
+    if (!this.bubble) return;
+
+    switch (this.state) {
+      case 'THINKING':
+        this.bubble.setText('💭 thinking...');
+        this.bubble.setBackgroundColor('#475569');
+        this.bubble.setVisible(true);
+        break;
+      case 'ALERT':
+        this.bubble.setText('🚨 ALERT!');
+        this.bubble.setBackgroundColor('#b91c1c');
+        this.bubble.setVisible(true);
+        break;
+      case 'WORKING':
+        this.bubble.setText('⌨️ working...');
+        this.bubble.setBackgroundColor('#1e293b');
+        this.bubble.setVisible(true);
+        break;
+      case 'COLLABORATING':
+        this.bubble.setText('🤝 gathering...');
+        this.bubble.setBackgroundColor('#1e3a8a');
+        this.bubble.setVisible(true);
+        break;
+      default:
+        this.bubble.setVisible(false);
+        break;
+    }
   }
 
   public setName(name: string) {
@@ -35,6 +79,11 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
     return this.agentName;
   }
 
+  public setTarget(target: Phaser.GameObjects.GameObject | Phaser.Math.Vector2) {
+    this.target = target;
+    this.setState('COLLABORATING');
+  }
+
   public syncState(newState: AgentState) {
     console.log(`Syncing ${this.agentId} to state ${newState}`);
     this.setState(newState);
@@ -45,6 +94,7 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
 
     this.state = newState;
     this.updateAnimation();
+    this.updateBubble();
     this.stateTimer = 0;
   }
 
@@ -70,6 +120,11 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
 
   public update(time: number, delta: number, officeObjects: OfficeObject[]) {
     this.stateTimer += delta;
+
+    if (this.bubble) {
+      this.bubble.x = this.x;
+      this.bubble.y = this.y - 40;
+    }
 
     switch (this.state) {
       case 'IDLE':
@@ -157,7 +212,10 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
 
   private moveToTarget() {
     if (this.target) {
-      this.scene.physics.moveToObject(this, this.target, this.moveSpeed);
+      const targetX = 'x' in this.target ? this.target.x : (this.target as any).x;
+      const targetY = 'y' in this.target ? this.target.y : (this.target as any).y;
+
+      this.scene.physics.moveTo(this, targetX, targetY, this.moveSpeed);
 
       if (this.body.velocity.x > 0) {
         this.setFlipX(false);
@@ -174,7 +232,9 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
 
   private hasReachedTarget(): boolean {
     if (!this.target) return false;
-    const dist = Phaser.Math.Distance.Between(this.x, this.y, this.target.x, this.target.y);
+    const targetX = 'x' in this.target ? this.target.x : (this.target as any).x;
+    const targetY = 'y' in this.target ? this.target.y : (this.target as any).y;
+    const dist = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
     return dist < 32;
   }
 
