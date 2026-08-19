@@ -9,4 +9,7 @@ export const Assets = {
     coffeeMachine: 'assets/objects/coffee_machine.png',
     chair: 'assets/objects/chair.png',
   },
+  agents: {
+    personita: 'assets/agents/personita.png',
+  },
 };

@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
 import { Assets } from '../assets/Assets';
 import { OfficeObject } from '../entities/OfficeObject';
+import { AgentEntity } from '../entities/AgentEntity';
 
 export class OfficeScene extends Phaser.Scene {
+  private officeObjects: OfficeObject[] = [];
+  private agents: AgentEntity[] = [];
+
   constructor() {
     super('OfficeScene');
   }
@@ -17,11 +21,23 @@ export class OfficeScene extends Phaser.Scene {
     this.load.image('computer', Assets.objects.computer);
     this.load.image('coffeeMachine', Assets.objects.coffeeMachine);
     this.load.image('chair', Assets.objects.chair);
+
+    // Load agents
+    this.load.spritesheet('personita', Assets.agents.personita, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
   }
 
   create() {
     this.createMap();
     this.createOfficeObjects();
+    this.createAgentAnimations();
+    this.spawnAgents();
+  }
+
+  update(time: number, delta: number) {
+    this.agents.forEach(agent => agent.update(time, delta, this.officeObjects));
   }
 
   private createMap() {
@@ -68,51 +84,104 @@ export class OfficeScene extends Phaser.Scene {
 
     // Trading Office Objects
     for (let i = 0; i < 3; i++) {
-      new OfficeObject(this, {
+      this.officeObjects.push(new OfficeObject(this, {
         x: (2 + i * 3) * tileSize,
         y: 3 * tileSize,
         texture: 'desk',
         name: `Trading Desk ${i + 1}`,
         interactive: true,
         callback: () => console.log('Checking markets...'),
-      });
-      new OfficeObject(this, {
+      }));
+      this.officeObjects.push(new OfficeObject(this, {
         x: (2 + i * 3) * tileSize,
         y: 3 * tileSize,
         texture: 'computer',
         name: `Trading Terminal ${i + 1}`,
         interactive: true,
-      });
+      }));
     }
 
     // Risk Office Objects
-    new OfficeObject(this, {
+    this.officeObjects.push(new OfficeObject(this, {
       x: 18 * tileSize,
       y: 3 * tileSize,
       texture: 'desk',
       name: 'Risk Management Desk',
       interactive: true,
       callback: () => console.log('Analyzing VaR...'),
-    });
+    }));
 
     // Director's Office Objects
-    new OfficeObject(this, {
+    this.officeObjects.push(new OfficeObject(this, {
       x: 5 * tileSize,
       y: 18 * tileSize,
       texture: 'desk',
       name: 'Directors Desk',
       interactive: true,
       callback: () => console.log('Reviewing P&L...'),
-    });
+    }));
 
     // Monitoring Room Objects
-    new OfficeObject(this, {
+    this.officeObjects.push(new OfficeObject(this, {
       x: 20 * tileSize,
       y: 20 * tileSize,
       texture: 'coffeeMachine',
       name: 'Coffee Machine',
       interactive: true,
       callback: () => console.log('Brewing coffee for the night shift...'),
+    }));
+  }
+
+  private createAgentAnimations() {
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNumbers('personita', { start: 0, end: 3 }),
+      frameRate: 5,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'walk',
+      frames: this.anims.generateFrameNumbers('personita', { start: 4, end: 7 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'work',
+      frames: this.anims.generateFrameNumbers('personita', { start: 8, end: 11 }),
+      frameRate: 5,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'think',
+      frames: this.anims.generateFrameNumbers('personita', { start: 12, end: 15 }),
+      frameRate: 5,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'alert',
+      frames: this.anims.generateFrameNumbers('personita', { start: 16, end: 19 }),
+      frameRate: 10,
+      repeat: -1
+    });
+  }
+
+  private spawnAgents() {
+    const tileSize = 32;
+
+    // Define agent spawning positions based on rooms
+    const agentPositions = [
+      { x: 2 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { x: 5 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { x: 8 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { x: 18 * tileSize, y: 4 * tileSize, room: 'Risk Office' },
+      { x: 5 * tileSize, y: 19 * tileSize, room: 'Director\'s Office' },
+      { x: 21 * tileSize, y: 21 * tileSize, room: 'Monitoring Room' },
+    ];
+
+    agentPositions.forEach((pos, index) => {
+      const agent = new AgentEntity(this, pos.x, pos.y, 'personita');
+      agent.setName(`Agent ${index + 1} (${pos.room})`);
+      this.agents.push(agent);
     });
   }
 }
