@@ -1,0 +1,24 @@
+# Core Framework
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+
+# Database & Cache
+psycopg2-binary
+redis
+
+# Trading & Data Analysis
+jsonschema>=4.25.1
+packaging>=24.0
+pyyaml>=6.0
+requests>=2.31.0
+scipy>=1.13.1
+yfinance>=0.2.0
+tree-sitter
+
+# Alerts
+python-telegram-bot
+
+# Utilities
+python-dotenv
