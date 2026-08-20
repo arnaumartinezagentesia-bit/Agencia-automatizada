@@ -93,71 +93,86 @@ export class OfficeScene extends Phaser.Scene {
 
   private createBackground() {
     if (this.textures.exists('background')) {
-      this.add.image(0, 0, 'background').setOrigin(0).setDisplaySize(800, 600);
+      this.add.image(0, 0, 'background').setOrigin(0).setDisplaySize(1280, 720);
     } else {
-      this.add.rectangle(400, 300, 800, 600, 0x333333).setOrigin(0.5);
+      this.add.rectangle(640, 360, 1280, 720, 0x333333).setOrigin(0.5);
     }
   }
 
   private createOfficeObjects() {
-    const tileSize = 32;
+    const objectScale = 0.4; // Adjust this to fix the "huge" furniture issue
 
-    // Trading Office Objects
+    // Trading Office Area (Left side)
     for (let i = 0; i < 3; i++) {
-      this.officeObjects.push(new OfficeObject(this, {
-        x: (2 + i * 3) * tileSize,
-        y: 3 * tileSize,
+      const x = 200 + (i * 250);
+      const y = 200;
+
+      const desk = new OfficeObject(this, {
+        x: x,
+        y: y,
         texture: 'desk',
         name: `Trading Desk ${i + 1}`,
         interactive: true,
         callback: () => console.log('Checking markets...'),
-      }));
-      this.officeObjects.push(new OfficeObject(this, {
-        x: (2 + i * 3) * tileSize,
-        y: 3 * tileSize,
+      });
+      desk.setScale(objectScale);
+      this.officeObjects.push(desk);
+
+      const monitors = new OfficeObject(this, {
+        x: x,
+        y: y - 20,
         texture: 'monitors',
         name: `Trading Terminal ${i + 1}`,
         interactive: true,
-      }));
+      });
+      monitors.setScale(objectScale);
+      this.officeObjects.push(monitors);
     }
 
-    // Risk Office Objects
-    this.officeObjects.push(new OfficeObject(this, {
-      x: 18 * tileSize,
-      y: 3 * tileSize,
+    // Risk Office Area (Top Right)
+    const riskDesk = new OfficeObject(this, {
+      x: 1000,
+      y: 200,
       texture: 'desk',
       name: 'Risk Management Desk',
       interactive: true,
       callback: () => console.log('Analyzing VaR...'),
-    }));
+    });
+    riskDesk.setScale(objectScale);
+    this.officeObjects.push(riskDesk);
 
-    // Director's Office Objects
-    this.officeObjects.push(new OfficeObject(this, {
-      x: 5 * tileSize,
-      y: 18 * tileSize,
+    // Director's Office Area (Bottom Left)
+    const dirDesk = new OfficeObject(this, {
+      x: 300,
+      y: 500,
       texture: 'desk',
       name: 'Directors Desk',
       interactive: true,
       callback: () => console.log('Reviewing P&L...'),
-    }));
+    });
+    dirDesk.setScale(objectScale);
+    this.officeObjects.push(dirDesk);
 
-    // Monitoring Room Objects
-    this.officeObjects.push(new OfficeObject(this, {
-      x: 20 * tileSize,
-      y: 20 * tileSize,
+    // Monitoring/Coffee Area (Bottom Right)
+    const coffee = new OfficeObject(this, {
+      x: 1000,
+      y: 500,
       texture: 'coffee',
       name: 'Coffee Machine',
       interactive: true,
       callback: () => console.log('Brewing coffee for the night shift...'),
-    }));
+    });
+    coffee.setScale(objectScale);
+    this.officeObjects.push(coffee);
 
     this.meetingTable = new OfficeObject(this, {
-      x: 22 * tileSize,
-      y: 22 * tileSize,
+      x: 640,
+      y: 360,
       texture: 'desk',
       name: 'Meeting Table',
       interactive: true,
     });
+    this.meetingTable.setScale(objectScale * 1.5);
     this.officeObjects.push(this.meetingTable);
   }
 
@@ -197,15 +212,13 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private spawnAgents() {
-    const tileSize = 32;
-
     // Map agent IDs to their visual assets and positions
     const agentsConfig = [
-      { id: 'Director', texture: 'director', x: 5 * tileSize, y: 19 * tileSize, room: 'Director\'s Office' },
-      { id: 'MarketIntel', texture: 'marketIntel', x: 2 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { id: 'PatternDet', texture: 'patternDetection', x: 5 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { id: 'Backtest', texture: 'backtesting', x: 8 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { id: 'RiskMgmt', texture: 'riskMgmt', x: 18 * tileSize, y: 4 * tileSize, room: 'Risk Office' },
+      { id: 'Director', texture: 'director', x: 300, y: 550, room: 'Director\'s Office' },
+      { id: 'MarketIntel', texture: 'marketIntel', x: 200, y: 250, room: 'Trading Office' },
+      { id: 'PatternDet', texture: 'patternDetection', x: 450, y: 250, room: 'Trading Office' },
+      { id: 'Backtest', texture: 'backtesting', x: 700, y: 250, room: 'Trading Office' },
+      { id: 'RiskMgmt', texture: 'riskMgmt', x: 1000, y: 250, room: 'Risk Office' },
     ];
 
     agentsConfig.forEach(config => {
