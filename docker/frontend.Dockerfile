@@ -18,7 +18,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-ENV PORT 8000
+ENV PORT 3000
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public

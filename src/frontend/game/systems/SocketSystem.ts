@@ -11,7 +11,7 @@ export type SocketCallback = (payload: SocketPayload) => void;
 export class SocketSystem {
   private socket: WebSocket | null = null;
   private callbacks: Map<SocketEvent, SocketCallback[]> = new Map();
-  private readonly url: string = 'ws://localhost:8000/ws';
+  private readonly url: string = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws';
 
   constructor() {}
 
