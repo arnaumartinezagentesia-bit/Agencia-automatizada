@@ -14,26 +14,27 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load tilesets
-    this.load.image('floor', Assets.tilesets.floor);
-    this.load.image('walls', Assets.tilesets.walls);
+    // Load background
+    this.load.image('background', Assets.background);
 
     // Load objects
     this.load.image('desk', Assets.objects.desk);
-    this.load.image('computer', Assets.objects.computer);
-    this.load.image('coffeeMachine', Assets.objects.coffeeMachine);
     this.load.image('chair', Assets.objects.chair);
+    this.load.image('monitors', Assets.objects.monitors);
+    this.load.image('coffee', Assets.objects.coffee);
 
-    // Load agents
-    this.load.spritesheet('personita', Assets.agents.personita, {
-      frameWidth: 32,
-      frameHeight: 32,
+    // Load agents as spritesheets
+    Object.entries(Assets.agents).forEach(([key, path]) => {
+      this.load.spritesheet(key, path, {
+        frameWidth: 32,
+        frameHeight: 32,
+      });
     });
   }
 
   create() {
     this.createFallbackTextures();
-    this.createMap();
+    this.createBackground();
     this.createOfficeObjects();
     this.createAgentAnimations();
     this.spawnAgents();
@@ -43,13 +44,11 @@ export class OfficeScene extends Phaser.Scene {
   private createFallbackTextures() {
     // Create simple colored textures if the images didn't load
     const fallbacks = {
-      floor: 0x444444,
-      walls: 0x222222,
+      background: 0x333333,
       desk: 0x8B4513,
-      computer: 0x0000FF,
-      coffeeMachine: 0x333333,
       chair: 0x555555,
-      personita: 0x00FF00,
+      monitors: 0x0000FF,
+      coffee: 0xADD8E6,
     };
 
     Object.entries(fallbacks).forEach(([key, color]) => {
@@ -92,58 +91,12 @@ export class OfficeScene extends Phaser.Scene {
     this.agents.forEach(agent => agent.update(time, delta, this.officeObjects));
   }
 
-  private createMap() {
-    const tileSize = 32;
-
-    // Define room areas: [xStart, yStart, width, height, roomName]
-    const rooms = [
-      { x: 0, y: 0, w: 15, h: 15, name: 'Trading Office', color: 0x444444 },
-      { x: 16, y: 0, w: 10, h: 15, name: 'Risk Office', color: 0x555555 },
-      { x: 0, y: 16, w: 15, h: 10, name: 'Director\'s Office', color: 0x666666 },
-      { x: 16, y: 16, w: 10, h: 10, name: 'Monitoring Room', color: 0x777777 },
-    ];
-
-    rooms.forEach(room => {
-      // Fill floor
-      for (let x = room.x; x < room.x + room.w; x++) {
-        for (let y = room.y; y < room.y + room.h; y++) {
-          if (this.textures.exists('floor')) {
-            this.add.image(x * tileSize, y * tileSize, 'floor').setOrigin(0);
-          } else {
-            this.add.rectangle(x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, room.color).setOrigin(0.5);
-          }
-        }
-      }
-
-      // Draw walls (perimeter)
-      for (let x = room.x; x < room.x + room.w; x++) {
-        if (this.textures.exists('walls')) {
-          this.add.image(x * tileSize, room.y * tileSize, 'walls').setOrigin(0);
-          this.add.image(x * tileSize, (room.y + room.h) * tileSize, 'walls').setOrigin(0);
-        } else {
-          this.add.rectangle(x * tileSize + tileSize/2, room.y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
-          this.add.rectangle(x * tileSize + tileSize/2, (room.y + room.h) * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
-        }
-      }
-      for (let y = room.y; y < room.y + room.h; y++) {
-        if (this.textures.exists('walls')) {
-          this.add.image(room.x * tileSize, y * tileSize, 'walls').setOrigin(0);
-          this.add.image((room.x + room.w) * tileSize, y * tileSize, 'walls').setOrigin(0);
-        } else {
-          this.add.rectangle(room.x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
-          this.add.rectangle((room.x + room.w) * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
-        }
-      }
-
-      // Label the room
-
-      this.add.text(
-        room.x * tileSize + 10,
-        room.y * tileSize + 10,
-        room.name,
-        { fontSize: '16px', color: '#fff' }
-      );
-    });
+  private createBackground() {
+    if (this.textures.exists('background')) {
+      this.add.image(0, 0, 'background').setOrigin(0).setDisplaySize(800, 600);
+    } else {
+      this.add.rectangle(400, 300, 800, 600, 0x333333).setOrigin(0.5);
+    }
   }
 
   private createOfficeObjects() {
@@ -162,7 +115,7 @@ export class OfficeScene extends Phaser.Scene {
       this.officeObjects.push(new OfficeObject(this, {
         x: (2 + i * 3) * tileSize,
         y: 3 * tileSize,
-        texture: 'computer',
+        texture: 'monitors',
         name: `Trading Terminal ${i + 1}`,
         interactive: true,
       }));
@@ -192,7 +145,7 @@ export class OfficeScene extends Phaser.Scene {
     this.officeObjects.push(new OfficeObject(this, {
       x: 20 * tileSize,
       y: 20 * tileSize,
-      texture: 'coffeeMachine',
+      texture: 'coffee',
       name: 'Coffee Machine',
       interactive: true,
       callback: () => console.log('Brewing coffee for the night shift...'),
@@ -209,55 +162,56 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private createAgentAnimations() {
-    this.anims.create({
-      key: 'idle',
-      frames: this.anims.generateFrameNumbers('personita', { start: 0, end: 3 }),
-      frameRate: 5,
-      repeat: -1
-    });
-    this.anims.create({
-      key: 'walk',
-      frames: this.anims.generateFrameNumbers('personita', { start: 4, end: 7 }),
-      frameRate: 10,
-      repeat: -1
-    });
-    this.anims.create({
-      key: 'work',
-      frames: this.anims.generateFrameNumbers('personita', { start: 8, end: 11 }),
-      frameRate: 5,
-      repeat: -1
-    });
-    this.anims.create({
-      key: 'think',
-      frames: this.anims.generateFrameNumbers('personita', { start: 12, end: 15 }),
-      frameRate: 5,
-      repeat: -1
-    });
-    this.anims.create({
-      key: 'alert',
-      frames: this.anims.generateFrameNumbers('personita', { start: 16, end: 19 }),
-      frameRate: 10,
-      repeat: -1
+    Object.keys(Assets.agents).forEach(agentKey => {
+      this.anims.create({
+        key: `${agentKey}_idle`,
+        frames: this.anims.generateFrameNumbers(agentKey, { start: 0, end: 3 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      this.anims.create({
+        key: `${agentKey}_walk`,
+        frames: this.anims.generateFrameNumbers(agentKey, { start: 4, end: 7 }),
+        frameRate: 10,
+        repeat: -1
+      });
+      this.anims.create({
+        key: `${agentKey}_work`,
+        frames: this.anims.generateFrameNumbers(agentKey, { start: 8, end: 11 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      this.anims.create({
+        key: `${agentKey}_think`,
+        frames: this.anims.generateFrameNumbers(agentKey, { start: 12, end: 15 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      this.anims.create({
+        key: `${agentKey}_alert`,
+        frames: this.anims.generateFrameNumbers(agentKey, { start: 16, end: 19 }),
+        frameRate: 10,
+        repeat: -1
+      });
     });
   }
 
   private spawnAgents() {
     const tileSize = 32;
 
-    // Define agent spawning positions based on rooms
-    const agentPositions = [
-      { x: 2 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { x: 5 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { x: 8 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
-      { x: 18 * tileSize, y: 4 * tileSize, room: 'Risk Office' },
-      { x: 5 * tileSize, y: 19 * tileSize, room: 'Director\'s Office' },
-      { x: 21 * tileSize, y: 21 * tileSize, room: 'Monitoring Room' },
+    // Map agent IDs to their visual assets and positions
+    const agentsConfig = [
+      { id: 'Director', texture: 'director', x: 5 * tileSize, y: 19 * tileSize, room: 'Director\'s Office' },
+      { id: 'MarketIntel', texture: 'marketIntel', x: 2 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { id: 'PatternDet', texture: 'patternDetection', x: 5 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { id: 'Backtest', texture: 'backtesting', x: 8 * tileSize, y: 4 * tileSize, room: 'Trading Office' },
+      { id: 'RiskMgmt', texture: 'riskMgmt', x: 18 * tileSize, y: 4 * tileSize, room: 'Risk Office' },
     ];
 
-    agentPositions.forEach((pos, index) => {
-      const agent = new AgentEntity(this, pos.x, pos.y, 'personita');
-      agent.setAgentId(`Agent${index + 1}`);
-      agent.setName(`Agent ${index + 1} (${pos.room})`);
+    agentsConfig.forEach(config => {
+      const agent = new AgentEntity(this, config.x, config.y, config.texture);
+      agent.setAgentId(config.id);
+      agent.setName(`${config.id} (${config.room})`);
       this.agents.push(agent);
     });
   }

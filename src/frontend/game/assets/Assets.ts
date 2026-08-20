@@ -1,15 +1,16 @@
 export const Assets = {
-  tilesets: {
-    floor: 'assets/tiles/floor.png',
-    walls: 'assets/tiles/walls.png',
-  },
+  background: 'Assets/Office/Oficina Trading.png',
   objects: {
-    desk: 'assets/objects/desk.png',
-    computer: 'assets/objects/computer.png',
-    coffeeMachine: 'assets/objects/coffee_machine.png',
-    chair: 'assets/objects/chair.png',
+    desk: 'Assets/Office/Mesa oficina trading.png',
+    chair: 'Assets/Office/Silla oficina trading.png',
+    monitors: 'Assets/Office/Monitores profesionales oficina trading.png',
+    coffee: 'Assets/Office/Taza de café oficina trading.png',
   },
   agents: {
-    personita: 'assets/agents/personita.png',
+    director: 'Assets/Office/Director oficina trading.png',
+    marketIntel: 'Assets/Office/Market Intel Agent.png',
+    patternDetection: 'Assets/Office/Pattern Detection Agent.png',
+    riskMgmt: 'Assets/Office/Risk Management Agent.png',
+    backtesting: 'Assets/Office/Backtesting Agent.png',
   },
 };

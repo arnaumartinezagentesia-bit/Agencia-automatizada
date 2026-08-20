@@ -109,9 +109,10 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       COLLABORATING: 'walk',
     };
 
-    const animKey = anims[this.agentState];
-    if (animKey && this.scene.anims.exists(animKey)) {
-      this.play(animKey, true);
+    const baseAnimKey = anims[this.agentState];
+    const fullAnimKey = `${this.texture.key}_${baseAnimKey}`;
+    if (fullAnimKey && this.scene.anims.exists(fullAnimKey)) {
+      this.play(fullAnimKey, true);
     }
   }
 
@@ -222,8 +223,11 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       }
 
       // Play walking animation when moving
-      if (this.state !== 'ALERT') {
-        this.play('walk', true);
+      if (this.agentState !== 'ALERT') {
+        const walkKey = `${this.texture.key}_walk`;
+        if (this.scene.anims.exists(walkKey)) {
+          this.play(walkKey, true);
+        }
       }
     }
   }
