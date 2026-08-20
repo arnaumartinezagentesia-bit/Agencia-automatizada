@@ -1,5 +1,6 @@
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
+
 
 WORKDIR /app
 
@@ -12,7 +13,8 @@ COPY src/frontend .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
+
 
 WORKDIR /app
 
