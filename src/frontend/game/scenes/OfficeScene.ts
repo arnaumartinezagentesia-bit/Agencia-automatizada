@@ -32,6 +32,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   create() {
+    this.createFallbackTextures();
     this.createMap();
     this.createOfficeObjects();
     this.createAgentAnimations();
@@ -39,7 +40,30 @@ export class OfficeScene extends Phaser.Scene {
     this.setupSocketSync();
   }
 
+  private createFallbackTextures() {
+    // Create simple colored textures if the images didn't load
+    const fallbacks = {
+      floor: 0x444444,
+      walls: 0x222222,
+      desk: 0x8B4513,
+      computer: 0x0000FF,
+      coffeeMachine: 0x333333,
+      chair: 0x555555,
+      personita: 0x00FF00,
+    };
+
+    Object.entries(fallbacks).forEach(([key, color]) => {
+      if (!this.textures.exists(key)) {
+        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(color, 1);
+        graphics.fillRect(0, 0, 32, 32);
+        graphics.generateTexture(key, 32, 32);
+      }
+    });
+  }
+
   private setupSocketSync() {
+
     socketSystem.connect();
     socketSystem.on('AGENT_STATE_UPDATE', (payload) => {
       const agent = this.agents.find(a => a.getAgentId() === payload.agentId);
@@ -83,21 +107,36 @@ export class OfficeScene extends Phaser.Scene {
       // Fill floor
       for (let x = room.x; x < room.x + room.w; x++) {
         for (let y = room.y; y < room.y + room.h; y++) {
-          this.add.image(x * tileSize, y * tileSize, 'floor').setOrigin(0);
+          if (this.textures.exists('floor')) {
+            this.add.image(x * tileSize, y * tileSize, 'floor').setOrigin(0);
+          } else {
+            this.add.rectangle(x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, room.color).setOrigin(0.5);
+          }
         }
       }
 
       // Draw walls (perimeter)
       for (let x = room.x; x < room.x + room.w; x++) {
-        this.add.image(x * tileSize, room.y * tileSize, 'walls').setOrigin(0);
-        this.add.image(x * tileSize, (room.y + room.h) * tileSize, 'walls').setOrigin(0);
+        if (this.textures.exists('walls')) {
+          this.add.image(x * tileSize, room.y * tileSize, 'walls').setOrigin(0);
+          this.add.image(x * tileSize, (room.y + room.h) * tileSize, 'walls').setOrigin(0);
+        } else {
+          this.add.rectangle(x * tileSize + tileSize/2, room.y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
+          this.add.rectangle(x * tileSize + tileSize/2, (room.y + room.h) * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
+        }
       }
       for (let y = room.y; y < room.y + room.h; y++) {
-        this.add.image(room.x * tileSize, y * tileSize, 'walls').setOrigin(0);
-        this.add.image((room.x + room.w) * tileSize, y * tileSize, 'walls').setOrigin(0);
+        if (this.textures.exists('walls')) {
+          this.add.image(room.x * tileSize, y * tileSize, 'walls').setOrigin(0);
+          this.add.image((room.x + room.w) * tileSize, y * tileSize, 'walls').setOrigin(0);
+        } else {
+          this.add.rectangle(room.x * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
+          this.add.rectangle((room.x + room.w) * tileSize + tileSize/2, y * tileSize + tileSize/2, tileSize, tileSize, 0x222222).setOrigin(0.5);
+        }
       }
 
       // Label the room
+
       this.add.text(
         room.x * tileSize + 10,
         room.y * tileSize + 10,

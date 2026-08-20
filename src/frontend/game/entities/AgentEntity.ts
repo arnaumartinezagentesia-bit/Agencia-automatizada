@@ -99,24 +99,20 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
   }
 
   private updateAnimation() {
-    switch (this.state) {
-      case 'IDLE':
-        this.play('idle', true);
-        break;
-      case 'WORKING':
-        this.play('work', true);
-        break;
-      case 'THINKING':
-        this.play('think', true);
-        break;
-      case 'ALERT':
-        this.play('alert', true);
-        break;
-      case 'COLLABORATING':
-        this.play('walk', true);
-        break;
+    const anims = {
+      IDLE: 'idle',
+      WORKING: 'work',
+      THINKING: 'think',
+      ALERT: 'alert',
+      COLLABORATING: 'walk',
+    };
+
+    const animKey = anims[this.state];
+    if (animKey && this.scene.anims.exists(animKey)) {
+      this.play(animKey, true);
     }
   }
+
 
   public update(time: number, delta: number, officeObjects: OfficeObject[]) {
     this.stateTimer += delta;
