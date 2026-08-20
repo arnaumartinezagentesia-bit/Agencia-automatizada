@@ -27,3 +27,12 @@ class DepartmentContextStore:
         if data:
             return json.loads(data)
         return None
+
+    def set_system_active(self, active: bool) -> None:
+        self.client.set("system_active", "true" if active else "false")
+
+    def is_system_active(self) -> bool:
+        val = self.client.get("system_active")
+        if val is None:
+            return True  # Default to active
+        return val == "true"

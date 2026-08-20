@@ -24,11 +24,32 @@ class StrategyRequest(BaseModel):
     strategy: str = "Breakout"
     period: int = 252
 
+class SystemControlRequest(BaseModel):
+    active: bool
+
+@router.post("/system/toggle")
+async def toggle_system(request: SystemControlRequest):
+    """
+    Toggles the active state of the company to save credits.
+    """
+    store.set_system_active(request.active)
+    return {"status": "success", "active": request.active}
+
+@router.get("/system/status")
+async def get_system_status():
+    """
+    Checks if the company is currently active.
+    """
+    return {"status": "success", "active": store.is_system_active()}
+
 @router.post("/chat")
 async def chat(request: ChatRequest):
     """
     Real-time interaction with the LangGraph.
     """
+    if not store.is_system_active():
+        raise HTTPException(status_code=403, detail="Company is currently PAUSED. Please activate the system to interact with agents.")
+
     try:
         # 1. Load existing state or initialize new one
         state = store.get_state(request.session_id)
@@ -66,6 +87,9 @@ async def generate_strategy(request: StrategyRequest):
     1. Director generates multiple hypotheses.
     2. Backtest Agent runs batch validation.
     """
+    if not store.is_system_active():
+        raise HTTPException(status_code=403, detail="Company is currently PAUSED. Please activate the system to generate strategies.")
+
     try:
         # 1. Load state or initialize
         state = store.get_state(request.session_id)

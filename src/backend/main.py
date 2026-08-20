@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from typing import List
 import json
 import asyncio
-from src.backend.api.endpoints import router as api_router
+from src.backend.api.endpoints import router as api_router, store
 from src.backend.agents.director import TradingDeskLead
 from src.backend.services.telegram_bot import telegram_bot
 
@@ -63,6 +63,8 @@ async def simulate_agent_updates():
 
     while True:
         await asyncio.sleep(5) # Update every 5 seconds
+        if not store.is_system_active():
+            continue
         agent = random.choice(agents)
         state = random.choice(states)
         await manager.broadcast({
@@ -80,16 +82,20 @@ async def morning_briefing_loop():
     director = TradingDeskLead()
     while True:
         try:
-            # In a real scenario, we'd schedule this for a specific time (e.g. 8:00 AM UTC)
-            # For the demo, we'll just log that it's starting.
-            briefing = director.generate_morning_briefing()
-            success = await telegram_bot.send_message(briefing)
-            if success:
-                print("Morning briefing sent successfully to Telegram.")
+            if not store.is_system_active():
+                print("Company is paused. Skipping morning briefing.")
             else:
-                print("Failed to send morning briefing to Telegram.")
+                # In a real scenario, we'd schedule this for a specific time (e.g. 8:00 AM UTC)
+                # For the demo, we'll just log that it's starting.
+                briefing = director.generate_morning_briefing()
+                success = await telegram_bot.send_message(briefing)
+                if success:
+                    print("Morning briefing sent successfully to Telegram.")
+                else:
+                    print("Failed to send morning briefing to Telegram.")
         except Exception as e:
             print(f"Error in morning briefing loop: {e}")
+
 
         # Sleep for 24 hours
         await asyncio.sleep(86400)
