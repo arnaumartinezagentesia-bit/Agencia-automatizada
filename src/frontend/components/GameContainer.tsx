@@ -1,13 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { initGame } from '../game/main';
 
 const GameContainer: React.FC = () => {
     const gameRef = useRef<any>(null);
 
     useEffect(() => {
         // Initialize Phaser only on the client side
-        if (!gameRef.current) {
-            gameRef.current = initGame();
+        if (typeof window !== 'undefined' && !gameRef.current) {
+            // Dynamic import to ensure Phaser is only loaded in the browser
+            import('../game/main').then((main) => {
+                gameRef.current = main.initGame();
+            });
         }
 
         return () => {
