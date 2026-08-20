@@ -63,8 +63,9 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  public setName(name: string) {
+  public setName(name: string): this {
     this.agentName = name;
+    return this;
   }
 
   public setAgentId(id: string) {
