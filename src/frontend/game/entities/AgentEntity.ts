@@ -90,13 +90,14 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
     this.setState(newState);
   }
 
-  public setState(newState: AgentState) {
-    if (this.state === newState) return;
+  public setState(newState: AgentState): this {
+    if (this.state === newState) return this;
 
     this.state = newState;
     this.updateAnimation();
     this.updateBubble();
     this.stateTimer = 0;
+    return this;
   }
 
   private updateAnimation() {
