@@ -141,7 +141,7 @@ export class OfficeScene extends Phaser.Scene {
         room.x * tileSize + 10,
         room.y * tileSize + 10,
         room.name,
-        { fontSize: '16px', fill: '#fff' }
+        { fontSize: '16px', color: '#fff' }
       );
     });
   }
