@@ -15,10 +15,10 @@ RUN npm run build
 # Stage 2: Production
 FROM node:20-alpine AS runner
 
-
 WORKDIR /app
 
 ENV NODE_ENV production
+ENV PORT 8000
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
@@ -27,7 +27,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 # Expose the port Next.js runs on
-EXPOSE 3000
+EXPOSE 8000
 
 # Start the application
 CMD ["npm", "start"]
