@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface Condition {
   id: string;
   metric: string;
-  operator: '>'; '|' | '<' | '==';
+  operator: '>' | '<' | '==' | '|';
   value: string;
 }
 
