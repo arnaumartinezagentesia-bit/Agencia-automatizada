@@ -4,7 +4,7 @@ import { OfficeObject } from '../entities/OfficeObject';
 export type AgentState = 'IDLE' | 'WORKING' | 'THINKING' | 'ALERT' | 'COLLABORATING';
 
 export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
-  protected state: AgentState = 'IDLE';
+  protected agentState: AgentState = 'IDLE';
   private agentId: string = '';
   private target: Phaser.GameObjects.GameObject | Phaser.Math.Vector2 | null = null;
   private stateTimer: number = 0;
@@ -36,7 +36,7 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
   private updateBubble() {
     if (!this.bubble) return;
 
-    switch (this.state) {
+    switch (this.agentState) {
       case 'THINKING':
         this.bubble.setText('💭 thinking...');
         this.bubble.setBackgroundColor('#475569');
@@ -87,13 +87,13 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
 
   public syncState(newState: AgentState) {
     console.log(`Syncing ${this.agentId} to state ${newState}`);
-    this.setState(newState);
+    this.updateAgentState(newState);
   }
 
-  public setState(newState: AgentState): this {
-    if (this.state === newState) return this;
+  public updateAgentState(newState: AgentState): this {
+    if (this.agentState === newState) return this;
 
-    this.state = newState;
+    this.agentState = newState;
     this.updateAnimation();
     this.updateBubble();
     this.stateTimer = 0;
@@ -109,7 +109,7 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       COLLABORATING: 'walk',
     };
 
-    const animKey = anims[this.state];
+    const animKey = anims[this.agentState];
     if (animKey && this.scene.anims.exists(animKey)) {
       this.play(animKey, true);
     }
@@ -124,7 +124,7 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       this.bubble.y = this.y - 40;
     }
 
-    switch (this.state) {
+    switch (this.agentState) {
       case 'IDLE':
         this.handleIdleState(officeObjects);
         break;
@@ -148,14 +148,14 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       this.moveToTarget();
       if (this.hasReachedTarget()) {
         this.target = null;
-        this.setState('THINKING');
+        this.updateAgentState('THINKING');
       }
     } else if (this.stateTimer > 2000) {
       const rand = Math.random();
       if (rand < 0.3) {
-        this.setState('WORKING');
+        this.updateAgentState('WORKING');
       } else if (rand < 0.6) {
-        this.setState('COLLABORATING');
+        this.updateAgentState('COLLABORATING');
       } else {
         this.target = this.getRandomTarget();
       }
@@ -172,23 +172,23 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
         this.target = null;
         this.updateAnimation(); // Ensure 'work' anim is playing
         if (this.stateTimer > 5000) {
-          this.setState('IDLE');
+          this.updateAgentState('IDLE');
         }
       }
     } else {
-      this.setState('IDLE');
+      this.updateAgentState('IDLE');
     }
   }
 
   private handleThinkingState() {
     if (this.stateTimer > 3000) {
-      this.setState('IDLE');
+      this.updateAgentState('IDLE');
     }
   }
 
   private handleAlertState() {
     if (this.stateTimer > 2000) {
-      this.setState('IDLE');
+      this.updateAgentState('IDLE');
     }
   }
 
@@ -200,11 +200,11 @@ export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
       if (this.hasReachedTarget()) {
         this.target = null;
         if (this.stateTimer > 4000) {
-          this.setState('IDLE');
+          this.updateAgentState('IDLE');
         }
       }
     } else {
-      this.setState('IDLE');
+      this.updateAgentState('IDLE');
     }
   }
 

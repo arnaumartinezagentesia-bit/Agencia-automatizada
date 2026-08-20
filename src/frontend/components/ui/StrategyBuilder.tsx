@@ -39,10 +39,33 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({ isOpen, onClose }) =>
     );
   };
 
-  const handleSave = () => {
-    console.log('Saving Strategy:', { strategyName, conditions, action });
-    alert('Strategy saved successfully!');
-    onClose();
+  const handleSave = async () => {
+    if (!strategyName.trim()) {
+      alert('Please enter a strategy name');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/strategy/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: 'default-session',
+          symbol: 'AAPL', // In a real app, this would be a user input
+          strategy: strategyName,
+          period: 252,
+        }),
+      });
+
+      if (!response.ok) throw new Error('API request failed');
+      const data = await response.json();
+
+      alert(`Strategy deployed! Tested ${data.hypotheses_tested} hypotheses. Results: ${JSON.stringify(data.results)}`);
+      onClose();
+    } catch (error) {
+      console.error('Strategy Error:', error);
+      alert('Error deploying strategy. Please check the backend connection.');
+    }
   };
 
   if (!isOpen) return null;

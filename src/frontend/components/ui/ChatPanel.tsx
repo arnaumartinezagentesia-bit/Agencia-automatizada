@@ -30,7 +30,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
     }
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
 
     const newUserMessage: Message = {
@@ -41,18 +41,39 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
+    const currentInput = inputValue;
     setInputValue('');
 
-    // Simulate agent response
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: 'default-session',
+          message: currentInput,
+        }),
+      });
+
+      if (!response.ok) throw new Error('API request failed');
+      const data = await response.json();
+
       const agentResponse: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'agent',
-        text: 'I am processing your request. Please hold on...',
+        text: data.final_verdict || 'Processed successfully.',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, agentResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error('Chat Error:', error);
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'agent',
+        text: 'Sorry, I encountered an error connecting to the brain. Please try again.',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorResponse]);
+    }
   };
 
   if (!isOpen) return null;
