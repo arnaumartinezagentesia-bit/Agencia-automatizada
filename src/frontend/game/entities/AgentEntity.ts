@@ -4,7 +4,7 @@ import { OfficeObject } from '../entities/OfficeObject';
 export type AgentState = 'IDLE' | 'WORKING' | 'THINKING' | 'ALERT' | 'COLLABORATING';
 
 export class AgentEntity extends Phaser.Physics.Arcade.Sprite {
-  private state: AgentState = 'IDLE';
+  protected state: AgentState = 'IDLE';
   private agentId: string = '';
   private target: Phaser.GameObjects.GameObject | Phaser.Math.Vector2 | null = null;
   private stateTimer: number = 0;
