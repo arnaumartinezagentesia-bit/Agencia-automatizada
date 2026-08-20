@@ -1,4 +1,4 @@
-export type SocketEvent = 'AGENT_STATE_UPDATE' | 'SYSTEM_MESSAGE';
+export type SocketEvent = 'AGENT_STATE_UPDATE' | 'SYSTEM_MESSAGE' | 'DIRECTOR_SYNTHESIS_START';
 
 export interface SocketPayload {
   agentId?: string;
