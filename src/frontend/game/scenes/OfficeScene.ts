@@ -54,7 +54,7 @@ export class OfficeScene extends Phaser.Scene {
 
     Object.entries(fallbacks).forEach(([key, color]) => {
       if (!this.textures.exists(key)) {
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        const graphics = this.make.graphics({ x: 0, y: 0 });
         graphics.fillStyle(color, 1);
         graphics.fillRect(0, 0, 32, 32);
         graphics.generateTexture(key, 32, 32);
