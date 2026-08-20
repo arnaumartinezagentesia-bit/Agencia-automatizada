@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import OfficeScene from './scenes/OfficeScene';
+import { OfficeScene } from './scenes/OfficeScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
