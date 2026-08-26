@@ -27,7 +27,7 @@ Debes leer y analizar a fondo todos los documentos que rigen la arquitectura, la
 
 ### 2. GESTIÓN Y CARGA DE SKILLS (REGLA DE AISLAMIENTO)
 - **Inventario Global:** El repositorio cuenta con un catálogo reorganizado de 1.756 skills documentado en `docs/final_skill_tree.md`, `docs/skills_reorganization_table.md` y `docs/skills_reorg_validation_report.md`.
-- **Catálogo Activo Autorizado:** ÚNICAMENTE tienes autorización para cargar y utilizar las **35 skills activas** ubicadas en `.claude/skills/` repartidas en:
+- **Catálogo Activo Autorizado:** ÚNICAMENTE tienes autorización para cargar y utilizar las **46 skills activas** ubicadas en `.claude/skills/` repartidas en:
   - `00-core/` (arquitectura, testing, observabilidad, secretos, ADRs)
   - `01-backend/` (FastAPI, PostgreSQL, Redis, APIs asíncronas, migraciones)
   - `02-trading/` (backtesting frameworks, risk metrics, stress test, data quality)
